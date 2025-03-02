@@ -1,0 +1,23 @@
+@font-face {
+  font-family: "Noto Sans JP";
+  font-weight: 400;
+  src: url(../fonts/NotoSansJP-Regular.woff) format("woff");
+}
+
+@font-face {
+  font-family: "Noto Sans JP";
+  font-weight: 600;
+  src: url(../fonts/NotoSansJP-Bold.woff) format("woff");
+}
+
+:root {
+  --bs-body-font-family: "Noto Sans JP";
+}
+
+.form-control::placeholder {
+  color: var(--bs-gray-500);
+}
+
+.btn-link {
+  text-decoration: none;
+}
