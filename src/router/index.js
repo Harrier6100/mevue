@@ -32,7 +32,11 @@ router.beforeEach(async (to, from, next) => {
 
     // 認証されていない場合、サインインを試行
     if (!store.getters.isAuth) {
-        await store.dispatch('autoSignin');
+        try {
+            await store.dispatch('autoSignin');
+        } catch (error) {
+            return next('/auth/error');
+        }
     }
 
     // 認証が必要なページ

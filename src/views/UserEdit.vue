@@ -23,20 +23,23 @@
                                 <input class="form-control" v-model="user.email">
                             </div>
                             <div class="mb-3">
+                                <label>役職</label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="isAdmin" v-model="user.isAdmin" @change="checkboxChange(1)">
-                                    <label class="form-check-label" for="isAdmin">管理者</label>
+                                    <input class="form-check-input" type="radio" id="admin" name="role" value="admin" v-model="user.role">
+                                    <label class="form-check-label" for="admin">Admin</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="user" name="role" value="user" v-model="user.role">
+                                    <label class="form-check-label" for="user">User</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="guest" name="role" value="guest" v-model="user.role">
+                                    <label class="form-check-label" for="guest">Guest</label>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="isGuest" v-model="user.isGuest" @change="checkboxChange(2)">
-                                    <label class="form-check-label" for="isGuest">ゲスト</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
+                            <div class="mb-3" v-if="user.role === 'guest'">
                                 <label>有効期限</label>
-                                <Flatpickr class="form-control" v-model="user.expiryDate" placeholder="YYYY-MM-DD" :disabled="!user.isGuest" />
+                                <Flatpickr class="form-control" v-model="user.expiryDate" placeholder="YYYY-MM-DD" />
                                 <div class="form-text text-danger" v-if="validateMessage.expiryDate">{{ validateMessage.expiryDate }}</div>
                             </div>
                         </div>
@@ -72,8 +75,7 @@ const user = ref({
     id: '',
     name: '',
     email: '',
-    isAdmin: false,
-    isGuest: false,
+    role: 'user',
     expiryDate: null,
 });
 const validateMessage = ref({});
@@ -84,14 +86,11 @@ onMounted(() => {
     }
 });
 
-watch(() => user.value.isGuest, (newValue) => {
-    if (!newValue) user.value.expiryDate = '';
+watch(() => user.value.role, (newValue) => {
+    if (newValue !== 'guest') {
+        user.value.expiryDate = '';
+    }
 });
-
-const checkboxChange = (index) => {
-    if (index === 1 && user.value.isAdmin) user.value.isGuest = false;
-    if (index === 2 && user.value.isGuest) user.value.isAdmin = false;
-};
 
 const fetchUser = async (id) => {
     try {
@@ -100,8 +99,7 @@ const fetchUser = async (id) => {
         user.value.id = response.id;
         user.value.name = response.name;
         user.value.email = response.email;
-        user.value.isAdmin = response.isAdmin;
-        user.value.isGuest = response.isGuest;
+        user.value.role = response.role;
         user.value.expiryDate = response.expiryDate ? formatDate(response.expiryDate) : null;
     } catch (error) {
         addAlert(error.message, 'error');
@@ -136,7 +134,7 @@ const Validate = {
     },
     expiryDate() {
         validateMessage.value.expiryDate = '';
-        if (user.value.isGuest && !user.value.expiryDate) {
+        if (user.value.role === 'guest' && !user.value.expiryDate) {
             validateMessage.value.expiryDate = 'ゲストアカウントは有効期限が必須です。';
             return false;
         }

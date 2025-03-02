@@ -18,8 +18,7 @@
                         <th :class="orderBy('id')" @click="sortBy('id')">ID</th>
                         <th :class="orderBy('name')" @click="sortBy('name')">名前</th>
                         <th :class="orderBy('email')" @click="sortBy('email')">メールアドレス</th>
-                        <th :class="orderBy('isAdmin')" @click="sortBy('isAdmin')">管理者</th>
-                        <th :class="orderBy('isGuest')" @click="sortBy('isGuest')">ゲスト</th>
+                        <th :class="orderBy('role')" @click="sortBy('role')">役職</th>
                         <th :class="orderBy('expiryDate')" @click="sortBy('expiryDate')">有効期限</th>
                         <th :class="orderBy('createdAt')" @click="sortBy('createdAt')">作成日時</th>
                         <th :class="orderBy('createdBy')" @click="sortBy('createdBy')">作成者</th>
@@ -33,8 +32,7 @@
                         <td class="text-start">{{ user.id }}</td>
                         <td class="text-start">{{ user.name }}</td>
                         <td class="text-start">{{ user.email }}</td>
-                        <td class="text-start">{{ user.isAdmin ? '✔' : '✖' }}</td>
-                        <td class="text-start">{{ user.isGuest ? '✔' : '✖' }}</td>
+                        <td class="text-start">{{ user.role }}</td>
                         <td class="text-start">{{ user.expiryDate ? formatDate(user.expiryDate) : '' }}</td>
                         <td class="text-start">{{ formatAt(user.createdAt) }}</td>
                         <td class="text-start">{{ user.createdBy }}</td>
