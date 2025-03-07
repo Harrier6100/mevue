@@ -20,33 +20,43 @@ const authentication = {
     },
     actions: {
         signin: async ({ commit }, credentials) => {
-            const response = await api.post('/api/token', credentials, { headers: { 'skip-auth': true }});
-            const { user, token, refreshToken } = response;
-            commit('setAuth', { user, token });
-            localStorage.setItem('token', token);
-            localStorage.setItem('refreshToken', refreshToken);
+            try {
+                const response = await api.post('/api/token', credentials, {
+                    headers: { 'skip-auth': true },
+                    withCredentials: true,
+                });
+                const { user, token } = response;
+                commit('setAuth', { user, token });
+                localStorage.setItem('token', token);
+            } catch (error) {
+                console.error('サインインエラー:', error);
+                throw error;
+            }
         },
         autoSignin: async ({ commit }) => {
             const token = localStorage.getItem('token');
-            const refreshToken = localStorage.getItem('refreshToken');
-            if (token && refreshToken) {
-                try {
-                    const response = await api.post('/api/token/refresh', { refreshToken }, { headers: { 'skip-auth': true }});
-                    const { user, token: newToken, refreshToken: newRefreshToken } = response;
-                    commit('setAuth', { user, token: newToken });
-                    localStorage.setItem('token', newToken);
-                    localStorage.setItem('refreshToken', newRefreshToken);
-                } catch (error) {
-                    commit('clearAuth');
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('refreshToken');
-                }
+            if (!token) return;
+
+            try {
+                const response = await api.post('/api/token/refresh', {}, {
+                    headers: { 'skip-auth': true },
+                    withCredentials: true,
+                });
+                const { user, token: newToken } = response;
+                commit('setAuth', { user, token: newToken });
+                localStorage.setItem('token', newToken);
+            } catch (error) {
+                commit('clearAuth');
+                localStorage.removeItem('token');
             }
         },
-        signout({ commit }) {
+        signout: async ({ commit }) => {
+            await api.post('/api/token/clear', {}, {
+                headers: { 'skip-auth': true },
+                withCredentials: true,
+            });
             commit('clearAuth');
             localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
         },
     },
     getters: {
