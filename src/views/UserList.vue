@@ -9,7 +9,7 @@
                     <input class="form-control" v-model="search" placeholder="検索">
                 </div>
                 <div class="col-auto ms-auto">
-                    <button class="btn btn-primary" @click.prevent="addUser" :disabled="isLoading">新規作成</button>
+                    <button class="btn btn-primary" @click="addUser" :disabled="isLoading">新規作成</button>
                 </div>
             </div>
             <table class="table table-bordered table-hover">

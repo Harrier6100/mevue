@@ -4,7 +4,7 @@
             <h6>Users</h6>
         </div>
         <div class="mb-3">
-            <form @submit.prevent>
+            <form @submit.prevent="save">
                 <div class="mb-3">
                     <div class="card">
                         <div class="card-body">
@@ -45,8 +45,8 @@
                         </div>
                     </div>
                 </div>
-                <button class="me-2 float-end" type="button" @click="back">戻る</button>
-                <button class="me-2 float-end" @click="save" :disabled="isLoading">保存</button>
+                <button type="button" class="float-end" @click="back">戻る</button>
+                <button type="submit" class="float-end me-2" :disabled="isLoading">保存</button>
             </form>
         </div>
     </div>
@@ -108,42 +108,60 @@ const fetchUser = async (id) => {
     }
 };
 
-const Validate = {
-    run() {
-        return ([
-            this.id(),
-            this.name(),
-            this.expiryDate(),
-        ]).every(check => check);
-    },
-    id() {
-        validateMessage.value.id = '';
-        if (!user.value.id) {
-            validateMessage.value.id = 'IDを入力してください。';
-            return false;
-        }
-        return true;
-    },
-    name() {
-        validateMessage.value.name = '';
-        if (!user.value.name) {
-            validateMessage.value.name = '名前を入力してください。';
-            return false;
-        }
-        return true;
-    },
-    expiryDate() {
-        validateMessage.value.expiryDate = '';
-        if (user.value.role === 'guest' && !user.value.expiryDate) {
-            validateMessage.value.expiryDate = 'ゲストアカウントは有効期限が必須です。';
-            return false;
-        }
-        return true;
-    },
+// const Validate = {
+//     run() {
+//         return ([
+//             this.id(),
+//             this.name(),
+//             this.expiryDate(),
+//         ]).every(check => check);
+//     },
+//     id() {
+//         validateMessage.value.id = '';
+//         if (!user.value.id) {
+//             validateMessage.value.id = 'IDを入力してください。';
+//             return false;
+//         }
+//         return true;
+//     },
+//     name() {
+//         validateMessage.value.name = '';
+//         if (!user.value.name) {
+//             validateMessage.value.name = '名前を入力してください。';
+//             return false;
+//         }
+//         return true;
+//     },
+//     expiryDate() {
+//         validateMessage.value.expiryDate = '';
+//         if (user.value.role === 'guest' && !user.value.expiryDate) {
+//             validateMessage.value.expiryDate = 'ゲストアカウントは有効期限が必須です。';
+//             return false;
+//         }
+//         return true;
+//     },
+// };
+
+const validate = () => {
+    validateMessage.value = {};
+
+    if (!user.value.id) {
+        validateMessage.value.id = 'IDを入力してください。';
+    }
+    if (!user.value.name) {
+        validateMessage.value.name = '名前を入力してください。';
+    }
+    if (!user.value.role === 'guest' && !user.value.expiryDate) {
+        validateMessage.value.expiryDate = 'ゲストアカウントは有効期限が必須です。';
+    }
+
+    return Object.keys(validateMessage.value).length === 0;
 };
 
 const save = async () => {
-    if (!Validate.run()) return;
+    if (!validate()) return;
+    // if (!Validate.run()) return;
+
     try {
         store.commit('startLoading');
         if (id.value) {
@@ -152,6 +170,11 @@ const save = async () => {
         } else {
             const response = await api.post(`/api/users`, user.value);
             addAlert(`id:${response.id}を作成しました。`, 'success');
+            user.value.id = '';
+            user.value.name = '';
+            user.value.email = '';
+            user.value.role = 'user';
+            user.value.expiryDate = null;
         }
     } catch (error) {
         addAlert(error.message, 'error');
@@ -161,9 +184,6 @@ const save = async () => {
 };
 
 const back = () => {
-    router.push({
-        name: 'UserList',
-        query: store.getters.query,
-    });
+    router.push({ name: 'UserList', query: store.getters.query });
 };
 </script>
